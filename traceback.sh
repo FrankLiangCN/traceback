@@ -24,7 +24,7 @@ declare -A TARGETS=(
 )
 
 # 精品网 ASN
-PREMIUM_ASNS=("AS4809" "AS9929" "AS58807")
+PREMIUM_ASNS=("AS4809" "AS9929" "AS10099" "AS58807")
 
 # 安装 nexttrace（如未安装）
 check_dep() {
@@ -35,19 +35,51 @@ check_dep() {
   fi
 }
 
-# 判断是否精品网
+# 判断是否精品网（任意一跳出现即可）
 detect_premium() {
   trace_output="$1"
 
+  # 精品 ASN
+  PREMIUM_ASNS=("AS4809" "AS9929" "AS10099" "AS58807")
+
+  # CN2 关键词（BackBone / Global / GIA / GT）
+  PREMIUM_KEYWORDS=("CN2" "BackBone" "Global" "GIA" "GT")
+
+  result=""
+
+  # ASN 判断（按顺序输出）
   for asn in "${PREMIUM_ASNS[@]}"; do
     if echo "$trace_output" | grep -q "$asn"; then
       case "$asn" in
-        "AS4809") echo "电信精品网（CN2 / CN2 GIA）"; return ;;
-        "AS9929") echo "联通精品网（AS9929）"; return ;;
-        "AS58807") echo "移动精品网（CMI Premium）"; return ;;
+        "AS4809")
+          result+="电信精品网（CN2 系列：GIA / GT / BackBone / Global） + "
+          ;;
+        "AS9929")
+          result+="联通精品网（AS9929） + "
+          ;;
+        "AS10099")
+          result+="联通高端网（AS10099） + "
+          ;;
+        "AS58879"|"AS58807")
+          result+="移动精品网（CMI Premium） + "
+          ;;
       esac
     fi
   done
+
+  # CN2 关键词判断（补充）
+  for kw in "${PREMIUM_KEYWORDS[@]}"; do
+    if echo "$trace_output" | grep -qi "$kw"; then
+      result+="电信精品网（CN2 系列：GIA / GT / BackBone / Global） + "
+      break
+    fi
+  done
+
+  # 如果有结果，去掉最后的 " + "
+  if [[ -n "$result" ]]; then
+    echo "${result% + }"
+    return
+  fi
 
   echo "普通线路"
 }
