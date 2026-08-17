@@ -5,6 +5,13 @@
 # 作者：FrankLiangCN（适配 BusyBox / Alpine / Debian）
 # -----------------------------------------
 
+Red='\033[0;31m'
+Green='\033[0;32m'
+Yellow='\033[0;33m'
+Blue='\033[0;34m'
+UBlue='\033[4;34m'
+Plain='\033[0m'
+
 set -e
 
 # 探测目标（可自行扩展）
@@ -73,8 +80,10 @@ detect_premium() {
   done
 
   # 如果有结果，去掉最后的 " + "
+#    echo "${result% + }"
   if [[ -n "$result" ]]; then
-    echo "${result% + }"
+    clean="${result% + }"
+    echo -e "\033[1;33m${clean}\033[0m"
     return
   fi
 
