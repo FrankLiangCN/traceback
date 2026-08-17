@@ -40,7 +40,7 @@ detect_premium() {
   PREMIUM_ASNS=("AS4809" "AS9929" "AS10099" "AS58807")
 
   # CN2 关键词（BackBone / Global / GIA / GT）
-  PREMIUM_KEYWORDS=("CN2" "BackBone" "Global" "GIA" "GT")
+  PREMIUM_KEYWORDS=("CN2" "CN2-BackBone" "CN2-Global" "GIA" "GT")
 
   result=""
 
