@@ -33,7 +33,7 @@ declare -A TARGETS=(
 check_dep() {
   if ! command -v nexttrace >/dev/null 2>&1; then
     echo "未检测到 nexttrace，正在安装..."
-    curl -Ls https://raw.githubusercontent.com/nxtrace/NTrace/main/install.sh | bash
+    curl -sN https://nxtrace.org/nt | bash
     echo "nexttrace 安装完成"
   fi
 }
