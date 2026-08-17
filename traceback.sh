@@ -83,7 +83,7 @@ detect_premium() {
 #    echo "${result% + }"
   if [[ -n "$result" ]]; then
     clean="${result% + }"
-    echo -e "\033[1;33m${clean}\033[0m"
+    echo -e "${Yellow}${clean}${Plain}"
     return
   fi
 
