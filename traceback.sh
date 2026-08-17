@@ -24,7 +24,7 @@ declare -A TARGETS=(
 )
 
 # 精品网 ASN
-PREMIUM_ASNS=("AS4809" "AS9929" "AS58879")
+PREMIUM_ASNS=("AS4809" "AS9929" "AS58807")
 
 # 安装 nexttrace（如未安装）
 check_dep() {
@@ -44,7 +44,7 @@ detect_premium() {
       case "$asn" in
         "AS4809") echo "电信精品网（CN2 / CN2 GIA）"; return ;;
         "AS9929") echo "联通精品网（AS9929）"; return ;;
-        "AS58879") echo "移动精品网（CMI Premium）"; return ;;
+        "AS58807") echo "移动精品网（CMI Premium）"; return ;;
       esac
     fi
   done
