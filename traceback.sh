@@ -24,9 +24,7 @@ declare -A TARGETS=(
 )
 
 # 精品网 ASN
-CT_PREMIUM="AS4809"
-CU_PREMIUM="AS9929"
-CM_PREMIUM="AS58879"
+PREMIUM_ASNS=("AS4809" "AS9929" "AS58879")
 
 # 安装 nexttrace（如未安装）
 check_dep() {
@@ -39,16 +37,19 @@ check_dep() {
 
 # 判断是否精品网
 detect_premium() {
-  asn="$1"
-  if [[ "$asn" == "$CT_PREMIUM" ]]; then
-    echo "电信精品网（CN2 GIA）"
-  elif [[ "$asn" == "$CU_PREMIUM" ]]; then
-    echo "联通精品网（AS9929）"
-  elif [[ "$asn" == "$CM_PREMIUM" ]]; then
-    echo "移动精品网（CMI Premium）"
-  else
-    echo "普通线路"
-  fi
+  trace_output="$1"
+
+  for asn in "${PREMIUM_ASNS[@]}"; do
+    if echo "$trace_output" | grep -q "$asn"; then
+      case "$asn" in
+        "AS4809") echo "电信精品网（CN2 / CN2 GIA）"; return ;;
+        "AS9929") echo "联通精品网（AS9929）"; return ;;
+        "AS58879") echo "移动精品网（CMI Premium）"; return ;;
+      esac
+    fi
+  done
+
+  echo "普通线路"
 }
 
 # 执行 nexttrace 并解析 ASN
@@ -65,15 +66,10 @@ run_trace() {
 
   echo "$output"
 
-  # 提取最后一跳 ASN
-  asn=$(echo "$output" | grep -Eo "AS[0-9]{3,6}" | tail -n 1)
-  [[ -z "$asn" ]] && asn="未知"
-
-  # 判断精品网
-  premium=$(detect_premium "$asn")
+  # 判断是否精品网
+  premium=$(detect_premium "$output")
 
   echo ""
-  echo " ASN：$asn"
   echo " 线路类型：$premium"
   echo ""
 }
@@ -82,8 +78,7 @@ main() {
   check_dep
 
   echo "============================================"
-  echo " 三网 NextTrace 回程检测"
-  echo " 自动识别精品网（AS4809 / AS9929 / AS58879）"
+  echo " NextTrace 回程检测（精品网任意跳识别版）"
   echo "============================================"
 
   for name in "${!TARGETS[@]}"; do
