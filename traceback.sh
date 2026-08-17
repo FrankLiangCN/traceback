@@ -23,9 +23,6 @@ declare -A TARGETS=(
   ["深圳移动"]="120.196.165.24"
 )
 
-# 精品网 ASN
-PREMIUM_ASNS=("AS4809" "AS9929" "AS10099" "AS58807")
-
 # 安装 nexttrace（如未安装）
 check_dep() {
   if ! command -v nexttrace >/dev/null 2>&1; then
