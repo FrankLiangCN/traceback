@@ -21,15 +21,14 @@ declare -A TARGETS=(
   ["深圳电信"]="58.60.188.222"
   ["深圳联通"]="120.80.157.101"
   ["深圳移动"]="120.196.165.24"
-  ["深圳电信163"]="113.96.0.0"
-  ["深圳电信CN2"]="59.43.0.1"
-  ["深圳联通169"]="210.21.0.1"
-  ["深圳联通9929"]="218.104.0.1"
-  ["深圳移动CMNET"]="221.179.155.161"
-  ["深圳移动CMI"]="223.120.128.1"
 )
 
-# 检查依赖
+# 精品网 ASN
+CT_PREMIUM="AS4809"
+CU_PREMIUM="AS9929"
+CM_PREMIUM="AS58879"
+
+# 安装 nexttrace（如未安装）
 check_dep() {
   if ! command -v nexttrace >/dev/null 2>&1; then
     echo "未检测到 nexttrace，正在安装..."
@@ -38,7 +37,21 @@ check_dep() {
   fi
 }
 
-# 执行 nexttrace
+# 判断是否精品网
+detect_premium() {
+  asn="$1"
+  if [[ "$asn" == "$CT_PREMIUM" ]]; then
+    echo "电信精品网（CN2 GIA）"
+  elif [[ "$asn" == "$CU_PREMIUM" ]]; then
+    echo "联通精品网（AS9929）"
+  elif [[ "$asn" == "$CM_PREMIUM" ]]; then
+    echo "移动精品网（CMI Premium）"
+  else
+    echo "普通线路"
+  fi
+}
+
+# 执行 nexttrace 并解析 ASN
 run_trace() {
   name="$1"
   ip="$2"
@@ -48,17 +61,30 @@ run_trace() {
   echo " 回程检测：$name ($ip)"
   echo "============================================"
 
-  nexttrace -q 1 -g cn "$ip"
+  output=$(nexttrace -q 1 "$ip")
+
+  echo "$output"
+
+  # 提取最后一跳 ASN
+  asn=$(echo "$output" | grep -Eo "AS[0-9]{3,6}" | tail -n 1)
+  [[ -z "$asn" ]] && asn="未知"
+
+  # 判断精品网
+  premium=$(detect_premium "$asn")
+
+  echo ""
+  echo " ASN：$asn"
+  echo " 线路类型：$premium"
+  echo ""
 }
 
-# 主程序
 main() {
   check_dep
 
   echo "============================================"
-  echo " VPS 回程路由检测（NextTrace）"
+  echo " 三网 NextTrace 回程检测"
+  echo " 自动识别精品网（AS4809 / AS9929 / AS58879）"
   echo "============================================"
-  echo "开始检测..."
 
   for name in "${!TARGETS[@]}"; do
     run_trace "$name" "${TARGETS[$name]}"
